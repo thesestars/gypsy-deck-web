@@ -94,6 +94,18 @@ h1 {
   cursor: pointer;
   pointer-events: auto;
 }
+  #shuffle-hint {
+  position: absolute;
+  top: 520px;      /* directly under the button */
+  right: 100px;   /* aligns with Tell Me My Fortune */
+  margin-top: 8px;
+  font-size: 14px;
+  color: #e6d6b8;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+  text-align: center;
+  pointer-events: none;
+}
 
 .card-flip { animation: flip .6s ease; }
 @keyframes flip { 50% { transform: rotateY(90deg); } }
@@ -115,6 +127,8 @@ h1 {
   <h1>Gypsy Deck</h1>
 
   <button id="draw-button">Tell Me My Fortune</button>
+
+<div id="shuffle-hint">Click the Crystal Ball to Shuffle the Deck</div>
 
   <div class="card-area">
     <img id="card-image" src="cards/card-back.png">
