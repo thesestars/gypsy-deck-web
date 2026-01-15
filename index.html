@@ -1,11 +1,176 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Gypsy Deck</title>
+<meta charset="UTF-8">
+<title>Gypsy Deck</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: Georgia, "Times New Roman", serif;
+  color: #fcebd2;
+}
+
+/* Background video */
+#bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7);
+  z-index: 0;
+}
+
+/* UI layer */
+.content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+h1 {
+  position: absolute;
+  top: 80px;
+  right: 40px;
+  font-size: 40px;
+  text-shadow: 0 2px 4px rgba(0,0,0,.8);
+}
+
+#draw-button {
+  position: absolute;
+  top: 480px;
+  right: 100px;
+  pointer-events: auto;
+  padding: 10px 20px;
+  background: #b33c5a;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+#card-image {
+  position: absolute;
+  top: 170px;
+  right: 100px;
+  width: 180px;
+  backface-visibility: hidden;
+}
+
+.ticket {
+  position: absolute;
+  top: 520px;
+  right: 520px;
+  width: 430px;
+  padding: 18px 36px;
+  background: rgba(252,235,210,.95);
+  color: #3b1c18;
+  border-radius: 10px;
+  border: 2px dashed #b33c5a;
+  text-align: center;
+}
+
+#reset-orb {
+  position: absolute;
+  left: 34.3%;
+  top: 57%;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(rgba(255,255,255,.18), transparent);
+  border: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.card-flip { animation: flip .6s ease; }
+@keyframes flip { 50% { transform: rotateY(90deg); } }
+
+.ticket-glow { animation: glow 1s ease; }
+@keyframes glow { 50% { box-shadow: 0 0 18px rgba(255,255,255,.7); } }
+</style>
 </head>
+
 <body>
-  <h1>Gypsy Deck – GitHub Pages Test</h1>
-  <p>If you can see this, Pages is working.</p>
+
+<video id="bg-video" autoplay loop muted playsinline>
+  <source src="background/gypsy_background.mp4" type="video/mp4">
+</video>
+
+<button id="reset-orb" aria-label="Reset Deck"></button>
+
+<div class="content">
+  <h1>Gypsy Deck</h1>
+
+  <button id="draw-button">Tell Me My Fortune</button>
+
+  <img id="card-image" src="cards/card-back.png">
+
+  <div class="ticket">
+    <p id="fortune">
+      Close your eyes, breathe, and think of your question.
+    </p>
+  </div>
+</div>
+
+<script>
+const shuffleSound = new Audio("audio/card-shuffle.mp3");
+const bgMusic = new Audio("audio/background-music.mp3");
+bgMusic.loop = true;
+bgMusic.volume = 0.35;
+
+let fortunes = {};
+let cards = [];
+
+document.addEventListener("click", () => {
+  bgMusic.play().catch(()=>{});
+}, { once:true });
+
+document.getElementById("reset-orb").onclick = resetDeck;
+document.getElementById("draw-button").onclick = drawCard;
+
+function resetDeck() {
+  shuffleSound.play();
+  document.getElementById("card-image").src = "cards/card-back.png";
+  document.getElementById("fortune").innerText =
+    "Close your eyes, breathe, and think of your question.";
+}
+
+function drawCard() {
+  if (!cards.length) return;
+
+  const key = cards[Math.floor(Math.random()*cards.length)];
+  const messages = fortunes[key];
+  const msg = messages[Math.floor(Math.random()*messages.length)];
+
+  const img = document.getElementById("card-image");
+  const ticket = document.querySelector(".ticket");
+
+  img.src = "cards/" + key + ".png";
+  document.getElementById("fortune").innerText = msg;
+
+  img.classList.remove("card-flip");
+  void img.offsetWidth;
+  img.classList.add("card-flip");
+
+  ticket.classList.remove("ticket-glow");
+  void ticket.offsetWidth;
+  ticket.classList.add("ticket-glow");
+}
+
+fetch("fortunes.json")
+  .then(r => r.json())
+  .then(data => {
+    fortunes = data;
+    cards = Object.keys(data);
+  });
+</script>
+
 </body>
 </html>
